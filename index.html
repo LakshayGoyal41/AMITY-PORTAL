@@ -1,0 +1,3135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amity University - BBA IB Sem 1 Attendance & Punch-Card Tracker</title>
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & SYSTEM VARIABLES (CYBER NAVY & AURORA CYAN THEME)
+       ========================================================================== */
+    :root {
+      /* Base & Canvas */
+      --bg-canvas: #070b14;
+      --surface-base: rgba(14, 21, 37, 0.75);
+      --surface-card: rgba(18, 28, 49, 0.78);
+      --surface-card-hover: rgba(24, 38, 66, 0.88);
+      --surface-inset: rgba(10, 15, 28, 0.88);
+      --surface-pill: rgba(0, 210, 255, 0.08);
+
+      /* Borders & Shadows */
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-medium: rgba(0, 210, 255, 0.28);
+      --border-focus: rgba(0, 210, 255, 0.65);
+      --glass-glow: 0 14px 40px -8px rgba(0, 0, 0, 0.65);
+      --glass-glow-lg: 0 26px 64px -12px rgba(0, 0, 0, 0.8);
+
+      /* Typography Colors */
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+
+      /* Primary Brand Accent: Electric Cyan / Aurora Glow */
+      --amity-cyan: #00d2ff;
+      --amity-cyan-light: #e0f8ff;
+      --amity-cyan-glow: rgba(0, 210, 255, 0.3);
+
+      /* Semantic Accents */
+      --safe: #00f5a0;
+      --safe-bg: rgba(0, 245, 160, 0.12);
+      --safe-border: rgba(0, 245, 160, 0.38);
+      --safe-glow: rgba(0, 245, 160, 0.32);
+
+      --danger: #ff3366;
+      --danger-bg: rgba(255, 51, 102, 0.12);
+      --danger-border: rgba(255, 51, 102, 0.38);
+      --danger-glow: rgba(255, 51, 102, 0.35);
+
+      /* Holiday / Yellow Indicator */
+      --holiday-yellow: #f59e0b;
+      --holiday-yellow-bg: rgba(245, 158, 11, 0.16);
+      --holiday-yellow-border: rgba(245, 158, 11, 0.45);
+      --holiday-yellow-glow: rgba(245, 158, 11, 0.35);
+
+      /* Timetable Subject Color Indicators */
+      --subj-econ: #00d2ff;
+      --subj-mgmt: #a855f7;
+      --subj-acct: #10b981;
+      --subj-bc: #f59e0b;
+
+      --warning: #ffb703;
+      --warning-bg: rgba(255, 183, 3, 0.12);
+      --warning-border: rgba(255, 183, 3, 0.4);
+
+      /* Radii */
+      --radius-2xl: 22px;
+      --radius-xl: 14px;
+      --radius-lg: 10px;
+      --radius-sm: 6px;
+      --radius-full: 9999px;
+
+      /* Transitions */
+      --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       2. GLOBAL RESET & PAGE-LEVEL ZOOM ENHANCEMENT
+       ========================================================================== */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      zoom: 1.1; /* 110% Zoom-in scale */
+      background-color: var(--bg-canvas);
+      background-image: 
+        radial-gradient(ellipse 90% 60% at 50% -12%, rgba(0, 210, 255, 0.12) 0%, transparent 65%),
+        radial-gradient(circle at 100% 45%, rgba(121, 40, 202, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 0% 85%, rgba(0, 245, 160, 0.05) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 48px 18px 68px;
+      min-height: 100vh;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+      position: relative;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* ==========================================================================
+       3. LOGIN VIEW MODULE
+       ========================================================================== */
+    .login-section {
+      display: none;
+      min-height: calc(100vh - 160px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    .login-section.active {
+      display: flex;
+    }
+
+    .login-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-2xl);
+      padding: 42px 36px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--glass-glow-lg);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--amity-cyan), var(--safe));
+      box-shadow: 0 0 16px var(--amity-cyan);
+    }
+
+    .login-logo-container {
+      position: relative;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+
+    .login-logo-container::after {
+      content: "";
+      position: absolute;
+      inset: -10px;
+      background: radial-gradient(circle, var(--amity-cyan-glow) 0%, transparent 70%);
+      filter: blur(12px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .login-uni-logo {
+      position: relative;
+      z-index: 1;
+      width: 74px;
+      height: auto;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
+    }
+
+    .login-uni-badge {
+      display: inline-flex;
+      align-items: center;
+      letter-spacing: 2.5px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--amity-cyan-light);
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(0, 210, 255, 0.05));
+      border: 1px solid var(--border-focus);
+      padding: 5px 16px;
+      border-radius: var(--radius-full);
+      margin-bottom: 10px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-card h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .form-input {
+      background: var(--surface-inset);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 13px 16px;
+      font-size: 0.95rem;
+      color: #fff;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--amity-cyan);
+      box-shadow: 0 0 16px var(--amity-cyan-glow);
+      background: rgba(10, 15, 28, 0.95);
+    }
+
+    .form-input[readonly] {
+      color: var(--amity-cyan-light);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      background: rgba(0, 210, 255, 0.04);
+      border-color: rgba(0, 210, 255, 0.2);
+      cursor: not-allowed;
+    }
+
+    .btn-login {
+      margin-top: 8px;
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.9), rgba(0, 150, 216, 0.9));
+      color: #030712;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 14px;
+      border-radius: var(--radius-xl);
+      cursor: pointer;
+      box-shadow: 0 6px 20px var(--amity-cyan-glow);
+      transition: all 0.2s ease;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-login:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 8px 26px rgba(0, 210, 255, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* ==========================================================================
+       4. APP INTERFACE & SIDEBAR NAVIGATION
+       ========================================================================== */
+    .app-main-wrapper {
+      display: none;
+    }
+
+    .app-main-wrapper.active {
+      display: block;
+    }
+
+    .sidebar-toggle-btn {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 1000;
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-xl);
+      background: var(--surface-card);
+      border: 1px solid var(--border-medium);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px var(--amity-cyan-glow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: opacity 0.25s var(--transition-smooth), transform 0.25s var(--transition-smooth), visibility 0.25s ease;
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
+
+    .sidebar-toggle-btn.hidden {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
+
+    .sidebar-toggle-btn:hover {
+      border-color: var(--amity-cyan);
+      transform: scale(1.05);
+      box-shadow: 0 8px 30px rgba(0, 210, 255, 0.35);
+    }
+
+    .sidebar-toggle-btn span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background-color: var(--amity-cyan);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 13, 0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 320px;
+      background: linear-gradient(175deg, rgba(14, 21, 37, 0.95), rgba(7, 11, 20, 0.98));
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-right: 1px solid var(--border-medium);
+      z-index: 999;
+      transform: translateX(-100%);
+      transition: transform 0.32s var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 20px 0 50px rgba(0, 0, 0, 0.7);
+      padding: 28px 20px 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .sidebar-logo {
+      width: 44px;
+      height: auto;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 4px 12px rgba(0, 210, 255, 0.4));
+    }
+
+    .sidebar-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.72rem;
+      color: var(--amity-cyan);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-close-btn {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-close-btn:hover {
+      color: #fff;
+      border-color: var(--amity-cyan);
+      background: rgba(0, 210, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: var(--radius-xl);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-align: left;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .nav-item:hover {
+      color: #fff;
+      background: rgba(0, 210, 255, 0.06);
+      border-color: rgba(0, 210, 255, 0.2);
+      transform: translateX(4px);
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.18), rgba(0, 210, 255, 0.05));
+      border-color: var(--border-focus);
+      box-shadow: 0 4px 16px rgba(0, 210, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .nav-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Logout Button in Sidebar */
+    .btn-logout {
+      background: linear-gradient(135deg, rgba(255, 51, 102, 0.2), rgba(217, 4, 41, 0.2));
+      border: 1px solid rgba(255, 51, 102, 0.4);
+      color: #ff8fa3;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 12px 18px;
+      border-radius: var(--radius-xl);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 51, 102, 0.35);
+      border-color: #ff3366;
+      color: #fff;
+      transform: translateX(3px);
+    }
+
+    /* Developer Info inside Sidebar */
+    .sidebar-dev-card {
+      background: rgba(0, 210, 255, 0.04);
+      border: 1px solid rgba(0, 210, 255, 0.18);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .sidebar-dev-card .s-dev-title {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--amity-cyan);
+    }
+
+    .sidebar-dev-card .s-dev-name {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .sidebar-dev-card a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      transition: color 0.2s ease;
+    }
+
+    .sidebar-dev-card a:hover {
+      color: var(--amity-cyan);
+    }
+
+    /* ==========================================================================
+       5. SCROLL TO TOP PROGRESS CIRCLE & ARROW BUTTON
+       ========================================================================== */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 995;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--surface-card);
+      border: none;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      color: var(--amity-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px var(--amity-cyan-glow);
+      transition: opacity 0.25s var(--transition-smooth), transform 0.25s var(--transition-smooth), visibility 0.25s ease, box-shadow 0.2s ease;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      outline: none;
+      padding: 0;
+    }
+
+    .scroll-top-btn.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .scroll-top-btn:hover {
+      background: rgba(18, 28, 49, 0.95);
+      color: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 210, 255, 0.45);
+    }
+
+    .scroll-top-btn:active {
+      transform: translateY(-1px) scale(0.96);
+    }
+
+    .scroll-progress-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      pointer-events: none;
+    }
+
+    .scroll-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 3;
+    }
+
+    .scroll-indicator {
+      fill: none;
+      stroke: var(--amity-cyan);
+      stroke-width: 3.2;
+      stroke-linecap: round;
+      stroke-dasharray: 144.5;
+      stroke-dashoffset: 144.5;
+      transition: stroke-dashoffset 0.1s linear, stroke 0.2s ease;
+      filter: drop-shadow(0 0 4px var(--amity-cyan));
+    }
+
+    .scroll-top-btn:hover .scroll-indicator {
+      stroke: #fff;
+      filter: drop-shadow(0 0 6px #fff);
+    }
+
+    .scroll-top-btn svg.arrow-icon {
+      position: relative;
+      z-index: 1;
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.2s ease;
+    }
+
+    .scroll-top-btn:hover svg.arrow-icon {
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       6. HEADER & HERO
+       ========================================================================== */
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo-container {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .logo-container::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      background: radial-gradient(circle, var(--amity-cyan-glow) 0%, transparent 72%);
+      filter: blur(14px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .uni-logo {
+      position: relative;
+      z-index: 1;
+      width: 86px;
+      height: auto;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.7));
+      transition: transform 0.3s var(--transition-smooth);
+    }
+
+    .uni-logo:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .uni-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 3px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--amity-cyan-light);
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.22), rgba(0, 210, 255, 0.05));
+      border: 1px solid var(--border-focus);
+      padding: 6px 20px;
+      border-radius: var(--radius-full);
+      margin-bottom: 14px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    h1 {
+      font-size: clamp(1.85rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      background: linear-gradient(180deg, #ffffff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+
+    /* ==========================================================================
+       7. TARGET THRESHOLD BAR
+       ========================================================================== */
+    .fixed-target-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      padding: 18px 24px;
+      border-radius: var(--radius-2xl);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--glass-glow);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fixed-target-bar::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--amity-cyan);
+      box-shadow: 0 0 16px var(--amity-cyan);
+    }
+
+    .target-title {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .target-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .fixed-badge {
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.28), rgba(0, 210, 255, 0.08));
+      color: var(--amity-cyan-light);
+      border: 1.5px solid rgba(0, 210, 255, 0.85);
+      font-weight: 800;
+      font-family: "JetBrains Mono", monospace;
+      padding: 7px 22px;
+      border-radius: var(--radius-lg);
+      font-size: 1.28rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 24px var(--amity-cyan-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    /* ==========================================================================
+       8. SUMMARY MATRIX BOARD
+       ========================================================================== */
+    .summary-card {
+      background: linear-gradient(165deg, rgba(20, 31, 55, 0.78), rgba(10, 15, 28, 0.94));
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: 22px 20px;
+      margin-bottom: 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      text-align: center;
+      box-shadow: var(--glass-glow-lg);
+      position: relative;
+    }
+
+    .summary-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-2xl);
+      padding: 1px;
+      background: linear-gradient(180deg, rgba(0, 210, 255, 0.18), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    @media (max-width: 580px) {
+      .summary-card {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+    }
+
+    .summary-item h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      color: var(--text-faint);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .summary-item p {
+      font-size: 1.85rem;
+      font-weight: 800;
+      font-family: "JetBrains Mono", monospace;
+      letter-spacing: -0.6px;
+    }
+
+    /* ==========================================================================
+       9. SUBJECT CARDS & SECTIONS
+       ========================================================================== */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .subject-list {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .subject-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: 26px;
+      box-shadow: var(--glass-glow);
+      transition: transform 0.22s var(--transition-smooth), border-color 0.22s ease, box-shadow 0.22s ease;
+      position: relative;
+    }
+
+    .subject-card:hover {
+      background: var(--surface-card-hover);
+      border-color: var(--border-medium);
+      box-shadow: var(--glass-glow-lg);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      gap: 16px;
+    }
+
+    .sub-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .sub-code {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    .percent-badge {
+      font-size: 1.28rem;
+      font-weight: 800;
+      font-family: "JetBrains Mono", monospace;
+      padding: 7px 16px;
+      border-radius: var(--radius-lg);
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      letter-spacing: -0.4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       10. RATIO CONSUMPTION BAR
+       ========================================================================== */
+    .ratio-wrapper {
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .ratio-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 9px;
+    }
+
+    .ratio-used-lbl {
+      color: #ff5c8a;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ratio-left-lbl {
+      color: #00f5a0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ratio-bar {
+      height: 8px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar-used {
+      background: linear-gradient(90deg, #d90429, #ff3366);
+      height: 100%;
+      transition: width 0.4s var(--transition-smooth);
+      box-shadow: 0 0 12px var(--danger-glow);
+    }
+
+    .bar-left {
+      background: linear-gradient(90deg, #00b4d8, #00f5a0);
+      height: 100%;
+      transition: width 0.4s var(--transition-smooth);
+      box-shadow: 0 0 12px var(--safe-glow);
+    }
+
+    /* ==========================================================================
+       11. STATS MATRIX TILES
+       ========================================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      text-align: center;
+      background: var(--surface-inset);
+      padding: 14px 10px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 520px) {
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        row-gap: 14px;
+      }
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    .stat-val {
+      font-weight: 700;
+      margin-top: 5px;
+      font-size: 1.18rem;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    /* ==========================================================================
+       12. PUNCH-CARD DECK
+       ========================================================================== */
+    .punch-card-section {
+      margin-bottom: 16px;
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      position: relative;
+    }
+
+    .punch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+    }
+
+    .slots {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .slot {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      transition: all 0.2s var(--transition-smooth);
+      position: relative;
+      outline: none;
+    }
+
+    .slot:focus-visible {
+      box-shadow: 0 0 0 2px var(--amity-cyan);
+    }
+
+    .slot.blank {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1.5px dashed rgba(255, 255, 255, 0.16);
+      color: transparent;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+    }
+
+    .slot.blank:hover {
+      border-color: var(--amity-cyan);
+      background: rgba(0, 210, 255, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 14px var(--amity-cyan-glow);
+    }
+
+    .slot.used {
+      background: linear-gradient(135deg, rgba(255, 51, 102, 0.24), rgba(217, 4, 41, 0.35));
+      border: 1.5px solid rgba(255, 51, 102, 0.85);
+      color: #ffccd5;
+      box-shadow: 0 4px 14px var(--danger-glow), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    .slot.used:hover {
+      transform: scale(0.95);
+      background: rgba(255, 51, 102, 0.4);
+    }
+
+    .slot.overflow {
+      background: linear-gradient(135deg, rgba(239, 35, 60, 0.5), rgba(160, 10, 30, 0.7));
+      border: 1.5px solid #ff3366;
+      color: #ffe6eb;
+      animation: pulseWarning 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseWarning {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.45); }
+      50% { box-shadow: 0 0 0 6px rgba(255, 51, 102, 0); }
+    }
+
+    /* ==========================================================================
+       13. QUOTE CAPSULE & ADVISORY
+       ========================================================================== */
+    .quote-box {
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(10, 15, 28, 0.75);
+      border: 1px dashed var(--border-subtle);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+    }
+
+    .quote-box.positive {
+      border-color: var(--safe-border);
+      background: var(--safe-bg);
+      color: #a7f3d0;
+    }
+
+    .quote-box.negative {
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+      color: #fecdd3;
+    }
+
+    .quote-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .quote-text {
+      font-style: italic;
+    }
+
+    .advice {
+      font-size: 0.88rem;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-left: 3.5px solid transparent;
+      line-height: 1.5;
+    }
+
+    .advice.safe {
+      border-color: var(--safe-border);
+      background: var(--safe-bg);
+      color: #a7f3d0;
+    }
+
+    .advice.danger {
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+      color: #fecdd3;
+    }
+
+    .advice.warning {
+      border-color: var(--warning-border);
+      background: var(--warning-bg);
+      color: #fde68a;
+    }
+
+    /* ==========================================================================
+       14. STEPPERS & ACTIONS
+       ========================================================================== */
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .controls-row {
+        flex-direction: column;
+      }
+    }
+
+    .control-group {
+      flex: 1;
+      display: flex;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+      transition: all 0.16s ease;
+      font-family: inherit;
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--amity-cyan);
+      outline-offset: 2px;
+    }
+
+    .btn-step-minus {
+      width: 46px;
+      background: rgba(255, 255, 255, 0.035);
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      font-family: "JetBrains Mono", monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--border-subtle);
+      user-select: none;
+    }
+
+    .btn-step-minus:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .btn-step-add {
+      flex: 1;
+      padding: 13px 12px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-present-add {
+      background: linear-gradient(135deg, rgba(0, 245, 160, 0.92), rgba(0, 180, 216, 0.92));
+      color: #022c22;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-present-add:hover {
+      filter: brightness(1.12);
+      box-shadow: 0 4px 20px var(--safe-glow);
+    }
+
+    .btn-absent-add {
+      background: linear-gradient(135deg, rgba(255, 51, 102, 0.92), rgba(217, 4, 41, 0.92));
+      color: #4c0519;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-absent-add:hover {
+      filter: brightness(1.12);
+      box-shadow: 0 4px 20px var(--danger-glow);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .secondary-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-edit-manual {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-faint);
+      font-size: 0.78rem;
+      padding: 7px 16px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-edit-manual:hover {
+      color: var(--text-main);
+      border-color: var(--border-medium);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* ==========================================================================
+       15. REDESIGNED TIMETABLE SUITE & TIMELINE INTERFACE
+       ========================================================================== */
+    .timetable-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .tt-header-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--glass-glow);
+    }
+
+    .tt-meta-row {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tt-title-group h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tt-title-group p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tt-pills-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .tt-pills-row::-webkit-scrollbar { display: none; }
+
+    .tt-day-pill {
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 7px 18px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .tt-day-pill:hover {
+      color: #fff;
+      border-color: rgba(0, 210, 255, 0.4);
+      background: rgba(0, 210, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .tt-day-pill.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.25), rgba(0, 210, 255, 0.08));
+      border-color: var(--amity-cyan);
+      box-shadow: 0 0 16px var(--amity-cyan-glow);
+    }
+
+    .tt-day-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      box-shadow: var(--glass-glow);
+      transition: transform 0.22s var(--transition-smooth), border-color 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tt-day-card:hover {
+      border-color: var(--border-medium);
+      box-shadow: var(--glass-glow-lg);
+    }
+
+    .tt-day-card.hidden {
+      display: none;
+    }
+
+    .day-banner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .day-name-badge {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .day-count-tag {
+      font-size: 0.72rem;
+      font-family: "JetBrains Mono", monospace;
+      color: var(--amity-cyan);
+      background: rgba(0, 210, 255, 0.1);
+      border: 1px solid rgba(0, 210, 255, 0.25);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+    }
+
+    .day-quote-box {
+      margin-bottom: 20px;
+      padding: 10px 14px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.05), rgba(16, 185, 129, 0.03));
+      border: 1px solid rgba(0, 210, 255, 0.18);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    .day-quote-box::before {
+      content: "“";
+      font-size: 1.4rem;
+      line-height: 0.8;
+      color: var(--amity-cyan);
+      font-style: normal;
+      font-weight: 900;
+    }
+
+    .timeline-roster {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-left: 26px;
+    }
+
+    .timeline-roster::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      bottom: 20px;
+      left: 7px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--amity-cyan) 0%, rgba(0, 210, 255, 0.15) 100%);
+    }
+
+    .timeline-item {
+      position: relative;
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.22s var(--transition-smooth);
+    }
+
+    .timeline-item:hover {
+      border-color: var(--border-medium);
+      transform: translateX(4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .timeline-node {
+      position: absolute;
+      left: -26px;
+      top: 24px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg-canvas);
+      border: 2.5px solid var(--amity-cyan);
+      box-shadow: 0 0 10px var(--amity-cyan-glow);
+    }
+
+    .timeline-main-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .time-slot-badge {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--amity-cyan-light);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .time-slot-badge::after {
+      content: "• 55 min";
+      font-size: 0.68rem;
+      color: var(--text-faint);
+    }
+
+    .course-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .course-code-pill {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .course-code-pill.econ { color: var(--subj-econ); }
+    .course-code-pill.mgmt { color: var(--subj-mgmt); }
+    .course-code-pill.acct { color: var(--subj-acct); }
+    .course-code-pill.bc { color: var(--subj-bc); }
+
+    .group-tag {
+      font-size: 0.72rem;
+      color: #fda4af;
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+    }
+
+    .faculty-info-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .venue-pill {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .venue-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      letter-spacing: 0.8px;
+    }
+
+    @media (max-width: 580px) {
+      .timeline-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .venue-pill {
+        align-items: flex-start;
+        text-align: left;
+      }
+    }
+
+    /* ==========================================================================
+       16. DYNAMIC ACADEMIC CALENDAR WITH YELLOW HOLIDAY EVENTS (NO DAYS BOXES)
+       ========================================================================== */
+    .calendar-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      box-shadow: var(--glass-glow);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .cal-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .cal-nav-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cal-btn {
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: var(--radius-lg);
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .cal-btn:hover {
+      border-color: var(--amity-cyan);
+      background: rgba(0, 210, 255, 0.08);
+      color: var(--amity-cyan-light);
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .cal-weekday {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--amity-cyan);
+      padding: 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* Pure Clean Calendar Day Style (No Day Boxes / Grids removed entirely) */
+    .cal-day {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 10px 4px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-height: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .cal-day:hover:not(.other-month) {
+      color: #fff;
+      background: rgba(0, 210, 255, 0.08);
+      border-radius: var(--radius-lg);
+    }
+
+    .cal-day.other-month {
+      opacity: 0.2;
+      cursor: default;
+    }
+
+    .cal-day.today {
+      color: var(--amity-cyan);
+      font-weight: 800;
+      background: rgba(0, 210, 255, 0.12);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 0 12px var(--amity-cyan-glow);
+    }
+
+    .cal-day.selected {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+    }
+
+    /* Yellow Holiday Styling */
+    .cal-day.yellow-holiday {
+      color: #fef08a;
+      font-weight: 800;
+      background: var(--holiday-yellow-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 0 10px var(--holiday-yellow-glow);
+    }
+
+    .cal-day.yellow-holiday::after {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--holiday-yellow);
+      box-shadow: 0 0 6px var(--holiday-yellow);
+    }
+
+    /* Selected Day Detail Capsule */
+    .cal-event-detail {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: var(--radius-xl);
+      background: var(--surface-inset);
+      border: 1px solid var(--border-medium);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .cal-detail-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .cal-detail-content h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .cal-detail-content p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .cal-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ==========================================================================
+       17. FOOTER & DEVELOPER INFO
+       ========================================================================== */
+    .bottom-actions {
+      text-align: center;
+      margin: 40px 0 16px;
+    }
+
+    .btn-reset {
+      background: transparent;
+      border: 1px solid rgba(255, 51, 102, 0.35);
+      color: rgba(255, 51, 102, 0.85);
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 9px 24px;
+      border-radius: var(--radius-full);
+      transition: all 0.22s ease;
+    }
+
+    .btn-reset:hover {
+      background: rgba(255, 51, 102, 0.12);
+      color: #ff3366;
+      border-color: #ff3366;
+      box-shadow: 0 0 20px rgba(255, 51, 102, 0.22);
+    }
+
+    .developer-footer {
+      text-align: center;
+      margin-top: 48px;
+      padding: 20px 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .developer-footer .dev-name {
+      color: var(--amity-cyan-light);
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .developer-footer .dev-contacts {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+
+    .developer-footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .developer-footer a:hover {
+      color: var(--amity-cyan);
+    }
+
+    /* Utility Color Bindings */
+    .color-safe { color: var(--safe) !important; }
+    .color-danger { color: var(--danger) !important; }
+    .color-warning { color: var(--warning) !important; }
+
+    /* ==========================================================================
+       18. PRINT STYLESHEET
+       ========================================================================== */
+    @media print {
+      body {
+        zoom: 1 !important;
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0;
+      }
+      .uni-logo {
+        mix-blend-mode: normal !important;
+      }
+      .controls-container, .bottom-actions, .fixed-target-bar, .quote-box, .sidebar-toggle-btn, .sidebar, .sidebar-backdrop, .cal-nav-btns, .tt-pills-row, .scroll-top-btn {
+        display: none !important;
+      }
+      .summary-card, .subject-card, .punch-card-section, .ratio-wrapper, .stats-grid, .tt-day-card, .tt-header-card, .calendar-card, .cal-event-detail, .developer-footer {
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+      .sub-title, h1, .cal-title, .cal-detail-content h4, .day-name-badge, .course-code-pill, .developer-footer .dev-name {
+        color: #000 !important;
+        -webkit-text-fill-color: initial !important;
+      }
+      .slot.blank {
+        background: #fff !important;
+        border-color: #ccc !important;
+      }
+      .slot.used {
+        background: #fee2e2 !important;
+        color: #dc2626 !important;
+        border-color: #ef4444 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <!-- ==========================================================================
+       LOGIN PAGE VIEW
+       ========================================================================== -->
+    <section class="login-section active" id="view-login">
+      <div class="login-card">
+        <div class="login-logo-container">
+          <img src="amity_logo.png" alt="Amity University Crest" class="login-uni-logo" />
+        </div>
+        <div class="login-uni-badge">AMITY UNIVERSITY</div>
+        <h2>Student Portal Login</h2>
+        <p>BBA (International Business) • Semester 1</p>
+
+        <form class="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="usernameInput">Username / Enrollment ID</label>
+            <input type="text" id="usernameInput" class="form-input" value="LGOPJOD" readonly autocomplete="username">
+          </div>
+
+          <div class="form-group">
+            <label for="passwordInput">Password</label>
+            <input type="password" id="passwordInput" class="form-input" placeholder="Enter password (98900)" required autocomplete="current-password">
+          </div>
+
+          <button type="submit" class="btn-login">Sign In to Portal</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+       MAIN APP WRAPPER (HIDDEN UNTIL LOGIN)
+       ========================================================================== -->
+    <div class="app-main-wrapper" id="appMainWrapper">
+
+      <!-- Floating Sidebar Toggle Button (Hides automatically when sidebar opens) -->
+      <button class="sidebar-toggle-btn" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle Side Navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Sidebar Backdrop -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+      <!-- Collapsible Side Navigation Bar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <img src="amity_logo.png" alt="Amity Logo" class="sidebar-logo" />
+          <div>
+            <div class="sidebar-title">BBA (IB) Portal</div>
+            <div class="sidebar-subtitle">Academic Suite</div>
+          </div>
+          <button class="sidebar-close-btn" onclick="toggleSidebar()" aria-label="Close Side Navigation">✕</button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item active" id="nav-attendance" onclick="switchView('attendance')">
+            <span class="nav-icon">📊</span>
+            <span>Attendance Tracker</span>
+          </button>
+          <button class="nav-item" id="nav-timetable" onclick="switchView('timetable')">
+            <span class="nav-icon">⏰</span>
+            <span>Lecture Timetable</span>
+          </button>
+          <button class="nav-item" id="nav-calendar" onclick="switchView('calendar')">
+            <span class="nav-icon">🗓️</span>
+            <span>Academic Calendar</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <!-- Developer Info Card in Sidebar -->
+          <div class="sidebar-dev-card">
+            <div class="s-dev-title">Developer Details</div>
+            <div class="s-dev-name">Lakshay Goyal</div>
+            <a href="tel:+919890049803">📞 +91 9890049803</a>
+            <a href="mailto:goyallakshay41@gmail.com">✉️ goyallakshay41@gmail.com</a>
+          </div>
+
+          <!-- Logout Button in Bottom of Sidebar -->
+          <button class="btn-logout" onclick="handleLogout()">
+            <span>🚪</span>
+            <span>Logout Portal</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Scroll-to-Top Button with Circular Progress Ring Border -->
+      <button class="scroll-top-btn" id="scrollTopBtn" onclick="scrollToTop()" aria-label="Scroll to top of page">
+        <svg class="scroll-progress-ring" viewBox="0 0 50 50">
+          <circle class="scroll-track" cx="25" cy="25" r="23"></circle>
+          <circle class="scroll-indicator" id="scrollIndicator" cx="25" cy="25" r="23"></circle>
+        </svg>
+        <svg class="arrow-icon" viewBox="0 0 24 24">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </button>
+
+      <div class="container">
+        <!-- Header -->
+        <header>
+          <div class="logo-container">
+            <img src="amity_logo.png" alt="Amity University Crest" class="uni-logo" />
+          </div>
+          <div class="uni-badge">AMITY UNIVERSITY</div>
+          <h1 id="pageHeading">BBA (International Business)</h1>
+          <p class="subtitle" id="pageSubHeading">Semester 1 • Academic Leave & Attendance Control</p>
+        </header>
+
+        <!-- ================= VIEW 1: ATTENDANCE TRACKER ================= -->
+        <section id="view-attendance" class="view-section active">
+          <!-- 75% Static Policy Target -->
+          <div class="fixed-target-bar" role="region" aria-label="Attendance Threshold Policy">
+            <div>
+              <div class="target-title">Statutory Eligibility Threshold</div>
+              <div class="target-desc">Minimum 75% physical attendance required across all modules</div>
+            </div>
+            <div class="fixed-badge">75%</div>
+          </div>
+
+          <!-- Aggregate Metric Overview -->
+          <div class="summary-card" role="region" aria-label="Overall Semester Attendance Metrics">
+            <div class="summary-item">
+              <h3>Total Conducted</h3>
+              <p id="overallHeld">0</p>
+            </div>
+            <div class="summary-item">
+              <h3>Attended</h3>
+              <p id="overallAttended" class="color-safe">0</p>
+            </div>
+            <div class="summary-item">
+              <h3>Absent</h3>
+              <p id="overallAbsent" class="color-danger">0</p>
+            </div>
+            <div class="summary-item">
+              <h3>Term Score</h3>
+              <p id="overallPercent">0.00%</p>
+            </div>
+          </div>
+
+          <!-- Subject Cards Container -->
+          <main class="subject-list" id="subjectsContainer" role="main" aria-label="Course Attendance Breakdowns"></main>
+
+          <!-- Global Reset -->
+          <div class="bottom-actions">
+            <button class="btn-reset" onclick="resetAll()">Reset All Records to Zero</button>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 2: REDESIGNED TIMETABLE SUITE ================= -->
+        <section id="view-timetable" class="view-section">
+          <div class="timetable-wrapper">
+            
+            <!-- Interactive Day Selector Card -->
+            <div class="tt-header-card">
+              <div class="tt-meta-row">
+                <div class="tt-title-group">
+                  <h2><span>🗓️</span> Weekly Lecture Roster</h2>
+                  <p>Verified AmiZone Schedule • Room I3-209 • 11 Sessions Weekly</p>
+                </div>
+              </div>
+
+              <!-- Day Filter Buttons -->
+              <div class="tt-pills-row">
+                <button class="tt-day-pill active" onclick="filterTimetableDay('all', this)">All Days</button>
+                <button class="tt-day-pill" onclick="filterTimetableDay('mon', this)">Monday</button>
+                <button class="tt-day-pill" onclick="filterTimetableDay('tue', this)">Tuesday</button>
+                <button class="tt-day-pill" onclick="filterTimetableDay('wed', this)">Wednesday</button>
+                <button class="tt-day-pill" onclick="filterTimetableDay('thu', this)">Thursday</button>
+                <button class="tt-day-pill" onclick="filterTimetableDay('fri', this)">Friday</button>
+              </div>
+            </div>
+
+            <!-- Monday Card -->
+            <article class="tt-day-card" data-day="mon">
+              <div class="day-banner-header">
+                <div class="day-name-badge">
+                  <span>📅 Monday</span>
+                  <span class="day-count-tag">2 Classes</span>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Block I3</span>
+              </div>
+
+              <div class="day-quote-box" id="quote-mon">Loading motivation...</div>
+
+              <div class="timeline-roster">
+                <!-- ECON101 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 10:15 to 11:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill econ">ECON101</span>
+                      <span class="group-tag">AIBS-ECON101 -E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Dr Pallab Sikdar (312615)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+
+                <!-- MGMT109 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 13:15 to 14:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill mgmt">MGMT109</span>
+                      <span class="group-tag">AIBS-MGMT109-E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Dr Ravneet Singh Bhandari (309397)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Tuesday Card -->
+            <article class="tt-day-card" data-day="tue">
+              <div class="day-banner-header">
+                <div class="day-name-badge">
+                  <span>📅 Tuesday</span>
+                  <span class="day-count-tag">2 Classes</span>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Block I3</span>
+              </div>
+
+              <div class="day-quote-box" id="quote-tue">Loading motivation...</div>
+
+              <div class="timeline-roster">
+                <!-- ACCT102 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 11:15 to 12:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill acct">ACCT102</span>
+                      <span class="group-tag">AIBS-ACCT102 -E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👩‍🏫 Prof.(Dr) Navleen Kaur (2835)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+
+                <!-- MGMT109 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 12:15 to 13:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill mgmt">MGMT109</span>
+                      <span class="group-tag">AIBS-MGMT109-E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Dr Ravneet Singh Bhandari (309397)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Wednesday Card -->
+            <article class="tt-day-card" data-day="wed">
+              <div class="day-banner-header">
+                <div class="day-name-badge">
+                  <span>📅 Wednesday</span>
+                  <span class="day-count-tag">2 Classes</span>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Block I3</span>
+              </div>
+
+              <div class="day-quote-box" id="quote-wed">Loading motivation...</div>
+
+              <div class="timeline-roster">
+                <!-- BC109 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 10:15 to 11:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill bc">BC109</span>
+                      <span class="group-tag">AICC-BC109-BQ</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Mr Marut Bisht (305140)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+
+                <!-- MGMT109 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 12:15 to 13:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill mgmt">MGMT109</span>
+                      <span class="group-tag">AIBS-MGMT109-E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Dr Ravneet Singh Bhandari (309397)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Thursday Card -->
+            <article class="tt-day-card" data-day="thu">
+              <div class="day-banner-header">
+                <div class="day-name-badge">
+                  <span>📅 Thursday</span>
+                  <span class="day-count-tag">2 Classes</span>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Block I3</span>
+              </div>
+
+              <div class="day-quote-box" id="quote-thu">Loading motivation...</div>
+
+              <div class="timeline-roster">
+                <!-- ACCT102 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 11:15 to 12:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill acct">ACCT102</span>
+                      <span class="group-tag">AIBS-ACCT102 -E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👩‍🏫 Prof.(Dr) Navleen Kaur (2835)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+
+                <!-- ECON101 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 13:15 to 14:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill econ">ECON101</span>
+                      <span class="group-tag">AIBS-ECON101 -E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Dr Pallab Sikdar (312615)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Friday Card -->
+            <article class="tt-day-card" data-day="fri">
+              <div class="day-banner-header">
+                <div class="day-name-badge">
+                  <span>📅 Friday</span>
+                  <span class="day-count-tag">3 Classes</span>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Block I3</span>
+              </div>
+
+              <div class="day-quote-box" id="quote-fri">Loading motivation...</div>
+
+              <div class="timeline-roster">
+                <!-- BC109 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 10:15 to 11:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill bc">BC109</span>
+                      <span class="group-tag">AICC-BC109-BQ</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Mr Marut Bisht (305140)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+
+                <!-- ACCT102 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 11:15 to 12:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill acct">ACCT102</span>
+                      <span class="group-tag">AIBS-ACCT102 -E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👩‍🏫 Prof.(Dr) Navleen Kaur (2835)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+
+                <!-- ECON101 -->
+                <div class="timeline-item">
+                  <span class="timeline-node"></span>
+                  <div class="timeline-main-info">
+                    <div class="time-slot-badge">⏰ 13:15 to 14:10</div>
+                    <div class="course-title-row">
+                      <span class="course-code-pill econ">ECON101</span>
+                      <span class="group-tag">AIBS-ECON101 -E</span>
+                    </div>
+                    <div class="faculty-info-text">
+                      <span>👨‍🏫 Dr Pallab Sikdar (312615)</span>
+                    </div>
+                  </div>
+                  <div class="venue-pill">
+                    <span class="venue-label">Hall</span>
+                    <span>I3 - 209</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <!-- ================= VIEW 3: DYNAMIC ACADEMIC CALENDAR (NO DAY BOXES) ================= -->
+        <section id="view-calendar" class="view-section">
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <div class="cal-title-wrapper">
+                <div class="cal-title" id="calMonthTitle">Academic Calendar</div>
+                <div class="uni-badge" style="margin:0;">2026 TERM</div>
+              </div>
+              <div class="cal-nav-btns">
+                <button class="cal-btn" onclick="prevMonth()" aria-label="Previous Month">‹</button>
+                <button class="cal-btn" onclick="nextMonth()" aria-label="Next Month">›</button>
+              </div>
+            </div>
+
+            <div class="cal-grid" id="calGrid">
+              <!-- Calendar Days dynamically injected via renderCalendar() -->
+            </div>
+
+            <!-- Interactive Day Inspection Details -->
+            <div class="cal-event-detail" id="calEventDetail">
+              <div class="cal-detail-icon" id="detailIcon">📅</div>
+              <div class="cal-detail-content">
+                <h4 id="detailTitle">Select any date</h4>
+                <p id="detailDesc">Click on any date to inspect details. Highlighted dates represent statutory university holidays.</p>
+              </div>
+            </div>
+
+            <div class="cal-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amity-cyan);"></div> Current Day</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--holiday-yellow);"></div> University Holiday</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Developer Footer -->
+      <footer class="developer-footer">
+        <div>Developed with precision by</div>
+        <div class="dev-name">Lakshay Goyal</div>
+        <div class="dev-contacts">
+          <a href="tel:+919890049803">📞 +91 9890049803</a>
+          <span>•</span>
+          <a href="mailto:goyallakshay41@gmail.com">✉️ goyallakshay41@gmail.com</a>
+        </div>
+      </footer>
+
+    </div>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    /* ==========================================================================
+       LOGIN AUTHENTICATION LOGIC (FIXED USERNAME: LGOPJOD, PASSWORD: 98900)
+       ========================================================================== */
+    function handleLogin(event) {
+      event.preventDefault();
+      const pass = document.getElementById("passwordInput").value.trim();
+
+      if (pass === "98900") {
+        document.getElementById("view-login").classList.remove("active");
+        document.getElementById("appMainWrapper").classList.add("active");
+        loadData();
+        render();
+        updateTimetableQuotes();
+        updateScrollProgress();
+      } else {
+        alert("Invalid password! Please use Password: 98900");
+      }
+    }
+
+    function handleLogout() {
+      document.getElementById("appMainWrapper").classList.remove("active");
+      document.getElementById("view-login").classList.add("active");
+      document.getElementById("passwordInput").value = "";
+      toggleSidebar();
+    }
+
+    /* ==========================================================================
+       SCROLL TO TOP WITH CIRCULAR PROGRESS INDICATOR
+       ========================================================================== */
+    const CIRCLE_CIRCUMFERENCE = 144.51; // 2 * π * 23
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function updateScrollProgress() {
+      const scrollBtn = document.getElementById("scrollTopBtn");
+      const indicator = document.getElementById("scrollIndicator");
+      
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+      if (scrollBtn) {
+        if (scrollY > 200) {
+          scrollBtn.classList.add("visible");
+        } else {
+          scrollBtn.classList.remove("visible");
+        }
+      }
+
+      if (indicator) {
+        if (scrollHeight > 0) {
+          const scrollPercent = Math.min(1, Math.max(0, scrollY / scrollHeight));
+          const offset = CIRCLE_CIRCUMFERENCE - (scrollPercent * CIRCLE_CIRCUMFERENCE);
+          indicator.style.strokeDashoffset = offset;
+        } else {
+          indicator.style.strokeDashoffset = CIRCLE_CIRCUMFERENCE;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", updateScrollProgress);
+    window.addEventListener("resize", updateScrollProgress);
+
+    /* ==========================================================================
+       45+ DAILY ROTATING MOTIVATING QUOTES POOL
+       ========================================================================== */
+    const DAILY_TIMETABLE_QUOTES = [
+      "Discipline is the bridge between college goals and career accomplishments.",
+      "Show up relentlessly; every single class today builds your future executive stature.",
+      "You don't have to be extreme, just consistent. Protect your morning streak.",
+      "The secret of getting ahead is simply getting started right on time.",
+      "Small disciplines repeated with consistency every day lead to great achievements.",
+      "Your seat in the lecture hall is your investment in tomorrow's leadership.",
+      "Do something today that your future semester-end self will thank you for.",
+      "Excellence is not an isolated act, but an ingrained daily routine.",
+      "Energy flows where attention goes. Be completely present in each roll call.",
+      "The pain of self-discipline hurts far less than the sting of debarment.",
+      "Action cures apprehension. Take your seat with purpose and lock in.",
+      "Consistency isn't about perfection—it's about never losing momentum.",
+      "Mastering early lectures separates true professionals from mere dreamers.",
+      "Every hour spent in lecture is capital banked toward your academic mastery.",
+      "Commitment means staying loyal to what you said you were going to do.",
+      "Success is the sum of small presences repeated day in and day out.",
+      "Don't count the days, make the days count toward your degree.",
+      "A solid attendance record buys you a calm, confident exam week.",
+      "Motivation gets you started; unshakeable habit keeps you showing up.",
+      "Patience, presence, and persistence form an unbeatable university trifecta.",
+      "The standard you walk past is the standard you accept. Show up today.",
+      "Success usually comes to those who are too busy being present to look for excuses.",
+      "Stay strictly focused on the process; the GPA takes care of itself.",
+      "Win the morning roll call, win the entire academic week.",
+      "Character is built in the quiet lectures when no one is cheering.",
+      "Your education is the dress rehearsal for a high-impact global career.",
+      "Self-command is the greatest of empires. Guard your lecture attendance.",
+      "One class at a time, one punch at a time—build your academic fortress.",
+      "Opportunities multiply as they are seized. Step into your classroom today.",
+      "Do what is right, not what is easy. Step into room I3-209 with focus.",
+      "Success does not negotiate with laziness. Own your schedule today.",
+      "Great achievements are nurtured through small, unglamorous daily presences.",
+      "You are in absolute command of your eligibility trajectory. Steer straight.",
+      "The harder you work for something, the greater you will feel when you achieve it.",
+      "An unyielding routine is the quickest route to university excellence.",
+      "Wake up with determination; walk out of college with complete satisfaction.",
+      "Your future executive reputation is being written right now in room I3-209.",
+      "Doubt kills more dreams than failure ever will. Be seated and be attentive.",
+      "Champions keep showing up even when the lecture feels demanding.",
+      "The only bad lecture is the one you chose to miss without cause.",
+      "Don't wait for inspiration; create it through punctuality and posture.",
+      "Step into the hall ready to learn, question, and expand your horizon.",
+      "Success isn't accidental; it is deliberate presence compounded over time.",
+      "Discipline equals academic freedom. Stay well clear of the danger threshold.",
+      "Make today's lecture count. Knowledge compounds like interest.",
+      "Excellence is a decision you remake every single morning.",
+      "Show up, pay attention, and let consistency outwork raw talent.",
+      "The classroom is where potential transforms into executive skill."
+    ];
+
+    function updateTimetableQuotes() {
+      const now = new Date();
+      const epochDays = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+      
+      const monQuote = DAILY_TIMETABLE_QUOTES[(epochDays + 1) % DAILY_TIMETABLE_QUOTES.length];
+      const tueQuote = DAILY_TIMETABLE_QUOTES[(epochDays + 2) % DAILY_TIMETABLE_QUOTES.length];
+      const wedQuote = DAILY_TIMETABLE_QUOTES[(epochDays + 3) % DAILY_TIMETABLE_QUOTES.length];
+      const thuQuote = DAILY_TIMETABLE_QUOTES[(epochDays + 4) % DAILY_TIMETABLE_QUOTES.length];
+      const friQuote = DAILY_TIMETABLE_QUOTES[(epochDays + 5) % DAILY_TIMETABLE_QUOTES.length];
+
+      const elMon = document.getElementById("quote-mon");
+      const elTue = document.getElementById("quote-tue");
+      const elWed = document.getElementById("quote-wed");
+      const elThu = document.getElementById("quote-thu");
+      const elFri = document.getElementById("quote-fri");
+
+      if (elMon) elMon.innerText = `${monQuote}”`;
+      if (elTue) elTue.innerText = `${tueQuote}”`;
+      if (elWed) elWed.innerText = `${wedQuote}”`;
+      if (elThu) elThu.innerText = `${thuQuote}”`;
+      if (elFri) elFri.innerText = `${friQuote}”`;
+    }
+
+    /* Timetable Filter Functionality */
+    function filterTimetableDay(day, btn) {
+      document.querySelectorAll(".tt-day-pill").forEach(p => p.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+
+      const cards = document.querySelectorAll(".tt-day-card");
+      cards.forEach(card => {
+        if (day === "all") {
+          card.classList.remove("hidden");
+        } else {
+          if (card.getAttribute("data-day") === day) {
+            card.classList.remove("hidden");
+          } else {
+            card.classList.add("hidden");
+          }
+        }
+      });
+    }
+
+    /* ==========================================================================
+       SIDEBAR & VIEW SWITCHER (TOGGLE BUTTON HIDE / SHOW LOGIC)
+       ========================================================================== */
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      const toggleBtn = document.getElementById("sidebarToggle");
+
+      const isOpen = sidebar.classList.toggle("open");
+      backdrop.classList.toggle("active", isOpen);
+
+      if (toggleBtn) {
+        toggleBtn.classList.toggle("hidden", isOpen);
+      }
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll(".view-section").forEach(sec => sec.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("active"));
+
+      const heading = document.getElementById("pageHeading");
+      const subHeading = document.getElementById("pageSubHeading");
+
+      if (viewName === "attendance") {
+        document.getElementById("view-attendance").classList.add("active");
+        document.getElementById("nav-attendance").classList.add("active");
+        heading.innerText = "BBA (International Business)";
+        subHeading.innerText = "Semester 1 • Academic Leave & Attendance Control";
+      } else if (viewName === "timetable") {
+        document.getElementById("view-timetable").classList.add("active");
+        document.getElementById("nav-timetable").classList.add("active");
+        heading.innerText = "Weekly Time Schedule";
+        subHeading.innerText = "AmiZone Verified • Room I3-209 • BBA IB Sem 1";
+        updateTimetableQuotes();
+      } else if (viewName === "calendar") {
+        document.getElementById("view-calendar").classList.add("active");
+        document.getElementById("nav-calendar").classList.add("active");
+        heading.innerText = "Academic Calendar";
+        subHeading.innerText = "Semester 1 Schedule & Holidays";
+        renderCalendar();
+      }
+
+      const sidebar = document.getElementById("sidebar");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      const toggleBtn = document.getElementById("sidebarToggle");
+
+      sidebar.classList.remove("open");
+      backdrop.classList.remove("active");
+      
+      if (toggleBtn) {
+        toggleBtn.classList.remove("hidden");
+      }
+    }
+
+    /* ==========================================================================
+       AMITY ACADEMIC CALENDAR ENGINE (NO DAY BOXES / PURE CLEAN VIEW)
+       ========================================================================== */
+    let currentCalDate = new Date();
+
+    const ACADEMIC_EVENTS = {
+      // September 2026
+      "2026-09-04": { title: "Janmashtami", type: "yellow-holiday", icon: "🪔", desc: "University Holiday on account of Janmashtami." },
+      
+      // October 2026
+      "2026-10-02": { title: "Mahatma Gandhi's Birthday", type: "yellow-holiday", icon: "🕊️", desc: "National Holiday on account of Gandhi Jayanti." },
+      "2026-10-20": { title: "Dussehra", type: "yellow-holiday", icon: "🏹", desc: "University Holiday on account of Dussehra (Vijayadashami)." },
+      
+      // November 2026
+      "2026-11-08": { title: "Diwali", type: "yellow-holiday", icon: "🪔", desc: "University Holiday on account of Diwali (Deepavali)." },
+      "2026-11-09": { title: "Govardhan Puja", type: "yellow-holiday", icon: "✨", desc: "University Holiday on account of Govardhan Puja." },
+      "2026-11-10": { title: "Additional Holiday", type: "yellow-holiday", icon: "🎉", desc: "University Holiday (Additional Holiday in lieu of Saturday)." },
+      "2026-11-11": { title: "Bhai Dooj", type: "yellow-holiday", icon: "🎁", desc: "University Holiday on account of Bhai Dooj." },
+      "2026-11-24": { title: "Guru Nanak's Birthday", type: "yellow-holiday", icon: "☬", desc: "University Holiday on account of Guru Nanak Jayanti." },
+
+      // December 2026
+      "2026-12-25": { title: "Christmas Day", type: "yellow-holiday", icon: "🎄", desc: "Gazetted University Holiday on account of Christmas Day." }
+    };
+
+    function prevMonth() {
+      currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+      renderCalendar();
+    }
+
+    function selectCalendarDate(dateKey, dayNum) {
+      document.querySelectorAll(".cal-day").forEach(el => el.classList.remove("selected"));
+      const targetEl = document.getElementById(`cal-cell-${dateKey}`);
+      if (targetEl) targetEl.classList.add("selected");
+
+      const eventData = ACADEMIC_EVENTS[dateKey];
+      const iconEl = document.getElementById("detailIcon");
+      const titleEl = document.getElementById("detailTitle");
+      const descEl = document.getElementById("detailDesc");
+
+      if (eventData) {
+        iconEl.innerText = eventData.icon;
+        titleEl.innerText = `${eventData.title} (${dateKey})`;
+        descEl.innerText = eventData.desc;
+      } else {
+        iconEl.innerText = "📅";
+        titleEl.innerText = `Date: ${dateKey}`;
+        descEl.innerText = "Regular working day. Attend scheduled lectures to maintain threshold.";
+      }
+    }
+
+    function renderCalendar() {
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      
+      const titleElem = document.getElementById("calMonthTitle");
+      if (titleElem) {
+        titleElem.innerText = `${monthNames[month]} ${year}`;
+      }
+
+      const grid = document.getElementById("calGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      weekdays.forEach(day => {
+        const d = document.createElement("div");
+        d.className = "cal-weekday";
+        d.innerText = day;
+        grid.appendChild(d);
+      });
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevDaysInMonth = new Date(year, month, 0).getDate();
+
+      const realToday = new Date();
+      const realTodayKey = `${realToday.getFullYear()}-${String(realToday.getMonth() + 1).padStart(2, '0')}-${String(realToday.getDate()).padStart(2, '0')}`;
+
+      // Fill previous month padding cells
+      for (let i = firstDayIndex - 1; i >= 0; i--) {
+        const cell = document.createElement("div");
+        cell.className = "cal-day other-month";
+        cell.innerHTML = `<span>${prevDaysInMonth - i}</span>`;
+        grid.appendChild(cell);
+      }
+
+      // Fill current month cells
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cell = document.createElement("div");
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        cell.id = `cal-cell-${dateKey}`;
+        cell.className = "cal-day";
+
+        if (dateKey === realTodayKey) {
+          cell.classList.add("today");
+        }
+
+        if (ACADEMIC_EVENTS[dateKey]) {
+          cell.classList.add(ACADEMIC_EVENTS[dateKey].type);
+          cell.title = ACADEMIC_EVENTS[dateKey].title;
+        }
+
+        cell.innerHTML = `<span>${d}</span>`;
+        cell.onclick = () => selectCalendarDate(dateKey, d);
+        grid.appendChild(cell);
+      }
+    }
+
+    /* ==========================================================================
+       ATTENDANCE CONSTANTS & CONFIGURATION
+       ========================================================================== */
+    const TARGET = 75;
+    const TARGET_RATIO = 0.75;
+    const STORAGE_KEY = "amity_bba_punch_attendance";
+
+    const MOTIVATION_QUOTES = {
+      positive: [
+        "80% of success in university is simply showing up. — Woody Allen",
+        "Discipline is choosing between what you want now and what you want most. — Abraham Lincoln",
+        "We are what we repeatedly do. Excellence, then, is not an act, but a habit. — Will Durant",
+        "Consistency isn't about perfection; it's about guarding your momentum.",
+        "Small daily presences compound into massive semester triumphs.",
+        "Your future self will thank you for sitting in this classroom seat today.",
+        "Success doesn't come from what you do occasionally, it comes from what you do consistently.",
+        "The secret of your degree is hidden in your morning discipline. — Mike Murdock",
+        "A healthy attendance buffer is the ultimate antidote to semester-end panic.",
+        "Great things are done by a series of small commitments brought together. — Vincent Van Gogh",
+        "Energy flows where attention goes. Keep this subject record pristine.",
+        "Discipline equals freedom. — Jocko Willink",
+        "Every single lecture attended is a deposit into your future executive capital.",
+        "Mastering early morning classes separates professionals from amateurs.",
+        "The habit of showing up builds the reputation of dependability.",
+        "Staying comfortably above 75% is strategic leverage, not chance.",
+        "Momentum is your greatest asset. Protect your streak with pride.",
+        "Patience, persistence, and presence make an unbeatable combination. — Napoleon Hill",
+        "Focus on the process daily, and debarment worries never exist.",
+        "An organized student buys a completely stress-free exam week.",
+        "Success is the sum of small attendances repeated day in and day out. — Robert Collier",
+        "You are in full control of your eligibility trajectory. Keep steering true.",
+        "The best preparation for tomorrow is doing exceptional work today. — H. Jackson Brown Jr.",
+        "Champions keep showing up even when the lecture feels slow.",
+        "Your attendance buffer is fortress-strong. Keep the standard intact."
+      ],
+      negative: [
+        "It's not whether you get knocked down; it's whether you get up right now. — Vince Lombardi",
+        "The best time to fix this attendance was yesterday. The second best time is today.",
+        "Debarment is costly; waking up early and showing up is completely free.",
+        "Excuses make today easy, but they make exam month brutal. Get to class.",
+        "You cannot escape the responsibility of tomorrow by skipping today. — Abraham Lincoln",
+        "A 75% threshold doesn't negotiate. Lock in and attend every upcoming hour.",
+        "The pain of discipline weighs ounces; the pain of repeating a course weighs tons.",
+        "Your comeback starts with the very next lecture. Don't hit snooze.",
+        "Stop testing the limits of your leave buffer. Get back into the green zone.",
+        "Rock bottom is a solid foundation to rebuild your attendance record. — J.K. Rowling",
+        "No more gambling with your semester. Pack your bag and take your seat.",
+        "A small deficit today becomes an exam hall ban tomorrow if unaddressed.",
+        "Discipline hurts for an hour; course debarment stings for an entire year.",
+        "Do what you must do today so you can do what you want tomorrow. — Oprah Winfrey",
+        "You can't erase missed lectures, but you have 100% say over upcoming ones.",
+        "Action cures anxiety. Be physically present in that classroom seat.",
+        "Attendance deficits aren't bad luck—they are reversible choices. Start now.",
+        "There are zero casual skips left to spare. Guard every remaining session fiercely.",
+        "Climb out of the danger zone one attendance punch at a time.",
+        "Winners find a way; excuses build debarment lists. Turn this course around.",
+        "Urgency is now required. Your future term depends on the next 10 lectures.",
+        "Your goals don't care if you felt tired this morning. Show up anyway.",
+        "Recovery begins the second you decide not to miss another single roll-call.",
+        "Tough times pass, but disciplined students survive. Fix this deficit today.",
+        "Don't wait for a formal warning letter to start taking this credit seriously."
+      ]
+    };
+
+    const INITIAL_SUBJECTS = [
+      { id: "ACCT102", name: "Accounting Fundamentals", totalPlanned: 45, minRequired: 34, present: 0, absent: 2 },
+      { id: "BC109", name: "Communication Skills - 1", totalPlanned: 30, minRequired: 23, present: 0, absent: 2 },
+      { id: "ECON101", name: "Economics for Managers", totalPlanned: 45, minRequired: 34, present: 0, absent: 2 },
+      { id: "MGMT109", name: "Introduction to Management", totalPlanned: 45, minRequired: 34, present: 0, absent: 3 }
+    ];
+
+    /* Persistent state */
+    let subjects = [];
+
+    /* ==========================================================================
+       STORAGE SERVICE
+       ========================================================================== */
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          subjects = JSON.parse(saved);
+        } catch (e) {
+          subjects = JSON.parse(JSON.stringify(INITIAL_SUBJECTS));
+        }
+      } else {
+        subjects = JSON.parse(JSON.stringify(INITIAL_SUBJECTS));
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
+    }
+
+    /* ==========================================================================
+       USER ACTIONS
+       ========================================================================== */
+    function toggleSlot(subjectIndex, slotIndex) {
+      const sub = subjects[subjectIndex];
+      if (sub.absent === slotIndex + 1) {
+        sub.absent = slotIndex;
+      } else {
+        sub.absent = slotIndex + 1;
+      }
+      updateAll();
+    }
+
+    function adjustPresent(index, amount) {
+      if (amount < 0 && subjects[index].present <= 0) return;
+      subjects[index].present += amount;
+      updateAll();
+    }
+
+    function adjustAbsent(index, amount) {
+      if (amount < 0 && subjects[index].absent <= 0) return;
+      subjects[index].absent += amount;
+      updateAll();
+    }
+
+    function editManual(index) {
+      const sub = subjects[index];
+      const p = prompt(`[${sub.id}] Enter total attended classes:`, sub.present);
+      if (p === null) return;
+      
+      const a = prompt(`[${sub.id}] Enter total missed (absent) classes:`, sub.absent);
+      if (a === null) return;
+
+      const pNum = parseInt(p, 10);
+      const aNum = parseInt(a, 10);
+
+      if (!isNaN(pNum) && pNum >= 0 && !isNaN(aNum) && aNum >= 0) {
+        sub.present = pNum;
+        sub.absent = aNum;
+        updateAll();
+      } else {
+        alert("Please enter valid positive numbers.");
+      }
+    }
+
+    function resetAll() {
+      if (confirm("Purge and reset all attendance records to 0?")) {
+        subjects.forEach(s => {
+          s.present = 0;
+          s.absent = 0;
+        });
+        updateAll();
+      }
+    }
+
+    function updateAll() {
+      saveData();
+      render();
+    }
+
+    /* ==========================================================================
+       DOMAIN CALCULATION ENGINE
+       ========================================================================== */
+    function computeSubjectMetrics(sub) {
+      const held = sub.present + sub.absent;
+      const currentPct = held > 0 ? (sub.present / held) * 100 : 100;
+      const isSafe = currentPct >= TARGET;
+      const totalLeavesAllowed = Math.floor(sub.totalPlanned * (1 - TARGET_RATIO));
+      const leavesLeft = Math.max(0, totalLeavesAllowed - sub.absent);
+      const remainingClasses = Math.max(0, sub.totalPlanned - held);
+      const usedRatioPct = Math.min(100, Math.round((sub.absent / totalLeavesAllowed) * 100));
+      const leftRatioPct = Math.max(0, 100 - usedRatioPct);
+
+      let leavesColor = "color-safe";
+      if (sub.absent >= totalLeavesAllowed) {
+        leavesColor = "color-danger";
+      } else if (totalLeavesAllowed - sub.absent <= 2) {
+        leavesColor = "color-warning";
+      }
+
+      let statusEmoji = "✨";
+      let adviceHtml = "";
+
+      if (held === 0) {
+        statusEmoji = "⚪";
+        adviceHtml = `<div class="advice">Session pending commencement. Total permissible margin of absence: <strong>${totalLeavesAllowed} lectures</strong>.</div>`;
+      } else if (isSafe) {
+        const canBunkNow = Math.floor((sub.present - TARGET_RATIO * held) / TARGET_RATIO);
+        if (canBunkNow >= 3) {
+          statusEmoji = "🟢";
+          adviceHtml = `<div class="advice safe">✓ <strong>Attendance Surplus:</strong> You can safely miss <strong>${canBunkNow}</strong> upcoming lectures in sequence while maintaining compliance.</div>`;
+        } else if (canBunkNow > 0) {
+          statusEmoji = "🛡️";
+          adviceHtml = `<div class="advice safe">✓ <strong>Protected:</strong> You can skip <strong>${canBunkNow}</strong> upcoming class${canBunkNow > 1 ? 'es' : ''} and still remain above 75%.</div>`;
+        } else {
+          statusEmoji = "⚠️";
+          adviceHtml = `<div class="advice warning">⚠ <strong>Critical Buffer:</strong> Missing your immediate upcoming session will trigger debarment risk below 75%!</div>`;
+        }
+      } else {
+        const needed = Math.ceil((TARGET_RATIO * held - sub.present) / (1 - TARGET_RATIO));
+        if (needed > remainingClasses) {
+          statusEmoji = "⛔";
+          adviceHtml = `<div class="advice danger">✕ <strong>Math Debarment:</strong> Recovery requires ${needed} consecutive presences, but only ${remainingClasses} lectures remain in the syllabus!</div>`;
+        } else {
+          statusEmoji = "🚨";
+          adviceHtml = `<div class="advice danger">✕ <strong>Deficit Warning:</strong> You must attend the next <strong>${needed}</strong> lecture${needed > 1 ? 'es' : ''} without absence to restore eligibility.</div>`;
+        }
+      }
+
+      return {
+        held,
+        currentPct,
+        isSafe,
+        totalLeavesAllowed,
+        leavesLeft,
+        remainingClasses,
+        usedRatioPct,
+        leftRatioPct,
+        leavesColor,
+        statusEmoji,
+        adviceHtml
+      };
+    }
+
+    /* ==========================================================================
+       VIEW RENDERER
+       ========================================================================== */
+    function render() {
+      const container = document.getElementById("subjectsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      let totalHeldSum = 0;
+      let totalAttendedSum = 0;
+      let totalAbsentSum = 0;
+
+      subjects.forEach((sub, index) => {
+        const metrics = computeSubjectMetrics(sub);
+
+        totalHeldSum += metrics.held;
+        totalAttendedSum += sub.present;
+        totalAbsentSum += sub.absent;
+
+        const colorClass = metrics.isSafe ? "color-safe" : "color-danger";
+
+        // Quote Selection
+        const quotePool = metrics.isSafe ? MOTIVATION_QUOTES.positive : MOTIVATION_QUOTES.negative;
+        const selectedQuote = quotePool[Math.floor(Math.random() * quotePool.length)];
+        const quoteClass = metrics.isSafe ? "positive" : "negative";
+        const quoteIcon = metrics.isSafe ? "💡" : "⚡";
+
+        // Punch Slot Generation
+        let slotsHtml = "";
+        for (let i = 0; i < metrics.totalLeavesAllowed; i++) {
+          const isUsed = i < sub.absent;
+          slotsHtml += `
+            <div class="slot ${isUsed ? 'used' : 'blank'}" 
+                 tabindex="0"
+                 role="button"
+                 aria-label="Slot ${i + 1}: ${isUsed ? 'Leave Logged' : 'Leave Available'}"
+                 onclick="toggleSlot(${index}, ${i})"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){toggleSlot(${index}, ${i}); event.preventDefault();}"
+                 title="Leave Slot ${i + 1}: ${isUsed ? 'Logged Missed (Click to unpunch)' : 'Available (Click to punch leave)'}">✕</div>
+          `;
+        }
+
+        if (sub.absent > metrics.totalLeavesAllowed) {
+          const extraAbsences = sub.absent - metrics.totalLeavesAllowed;
+          for (let j = 0; j < extraAbsences; j++) {
+            slotsHtml += `
+              <div class="slot overflow" 
+                   tabindex="0"
+                   role="button"
+                   aria-label="Excess Leave ${metrics.totalLeavesAllowed + j + 1}"
+                   onclick="adjustAbsent(${index}, -1)"
+                   onkeydown="if(event.key==='Enter'||event.key===' '){adjustAbsent(${index}, -1); event.preventDefault();}"
+                   title="Debarred Excess Leave #${metrics.totalLeavesAllowed + j + 1} (Click to remove)">✕</div>
+            `;
+          }
+        }
+
+        // Render Individual Subject Card
+        const card = document.createElement("article");
+        card.className = "subject-card";
+        card.innerHTML = `
+          <div class="card-header">
+            <div>
+              <h2 class="sub-title">${sub.name}</h2>
+              <div class="sub-code">${sub.id} • ${sub.totalPlanned} Classes Total • Min Req: ${sub.minRequired}</div>
+            </div>
+            <div class="percent-badge ${colorClass}">
+              <span>${metrics.statusEmoji}</span>
+              <span>${metrics.held === 0 ? "100.00%" : metrics.currentPct.toFixed(2) + "%"}</span>
+            </div>
+          </div>
+
+          <!-- Consumption Progress Bar -->
+          <div class="ratio-wrapper">
+            <div class="ratio-labels">
+              <span class="ratio-used-lbl">Consumed Allowance: ${metrics.usedRatioPct}% (${sub.absent})</span>
+              <span class="ratio-left-lbl">Surviving Balance: ${metrics.leftRatioPct}% (${Math.max(0, metrics.totalLeavesAllowed - sub.absent)})</span>
+            </div>
+            <div class="ratio-bar">
+              <div class="bar-used" style="width: ${metrics.usedRatioPct}%;"></div>
+              <div class="bar-left" style="width: ${metrics.leftRatioPct}%;"></div>
+            </div>
+          </div>
+
+          <!-- 5-Metric Breakdown Grid -->
+          <div class="stats-grid">
+            <div>
+              <div class="stat-label">Held</div>
+              <div class="stat-val">${metrics.held}</div>
+            </div>
+            <div>
+              <div class="stat-label">Present</div>
+              <div class="stat-val color-safe">${sub.present}</div>
+            </div>
+            <div>
+              <div class="stat-label">Absent</div>
+              <div class="stat-val color-danger">${sub.absent}</div>
+            </div>
+            <div>
+              <div class="stat-label">Leaves Left</div>
+              <div class="stat-val ${metrics.leavesColor}">${metrics.totalLeavesAllowed - sub.absent} <span style="font-size:0.7rem; color:var(--text-faint);">/ ${metrics.totalLeavesAllowed}</span></div>
+            </div>
+            <div>
+              <div class="stat-label">Remaining</div>
+              <div class="stat-val">${metrics.remainingClasses}</div>
+            </div>
+          </div>
+
+          <!-- Interactive Punch-Card Deck -->
+          <div class="punch-card-section">
+            <div class="punch-header">
+              <span>LEAVE QUOTA STAMP CARD</span>
+              <span>Used: <b style="color:#ff5c8a;">${sub.absent}</b> | Free: <b style="color:#00f5a0;">${Math.max(0, metrics.totalLeavesAllowed - sub.absent)}</b></span>
+            </div>
+            <div class="slots">${slotsHtml}</div>
+          </div>
+
+          <!-- Contextual Motivation Quote -->
+          <div class="quote-box ${quoteClass}">
+            <span class="quote-icon">${quoteIcon}</span>
+            <span class="quote-text">"${selectedQuote}"</span>
+          </div>
+
+          ${metrics.adviceHtml}
+
+          <!-- Micro-Control Steppers -->
+          <div class="controls-container">
+            <div class="controls-row">
+              <div class="control-group">
+                <button class="btn-step-minus" title="Deduct Present" onclick="adjustPresent(${index}, -1)" aria-label="Deduct Present">−</button>
+                <button class="btn-step-add btn-present-add" onclick="adjustPresent(${index}, 1)">+ Mark Present</button>
+              </div>
+              <div class="control-group">
+                <button class="btn-step-minus" title="Deduct Absent" onclick="adjustAbsent(${index}, -1)" aria-label="Deduct Absent">−</button>
+                <button class="btn-step-add btn-absent-add" onclick="adjustAbsent(${index}, 1)">+ Mark Absent</button>
+              </div>
+            </div>
+            <div class="secondary-row">
+              <button class="btn-edit-manual" onclick="editManual(${index})">✎ Adjust Exact Values</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Update Aggregates
+      const overallHeldElem = document.getElementById("overallHeld");
+      const overallAttendedElem = document.getElementById("overallAttended");
+      const overallAbsentElem = document.getElementById("overallAbsent");
+      
+      if (overallHeldElem) overallHeldElem.innerText = totalHeldSum;
+      if (overallAttendedElem) overallAttendedElem.innerText = totalAttendedSum;
+      if (overallAbsentElem) overallAbsentElem.innerText = totalAbsentSum;
+      
+      const overallPct = totalHeldSum > 0 ? (totalAttendedSum / totalHeldSum) * 100 : 100;
+      const overallElem = document.getElementById("overallPercent");
+      if (overallElem) {
+        overallElem.innerText = overallPct.toFixed(2) + "%";
+        overallElem.className = overallPct >= TARGET ? "color-safe" : "color-danger";
+      }
+    }
+
+    /* ==========================================================================
+       BOOTSTRAP INITIALIZATION
+       ========================================================================== */
+    loadData();
+    render();
+    updateTimetableQuotes();
+    updateScrollProgress();
+  </script>
+</body>
+</html>
